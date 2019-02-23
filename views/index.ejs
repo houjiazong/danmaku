@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>danmaku</title>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/danmaku.css">
+    <link rel="stylesheet" href="/stylesheets/base.css">
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+      }
+      #app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+      }
+      #my-player {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: transparent;
+        z-index: 2;
+      }
+      .full-video {
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="h100">
+      <video class="full-video" id="video">
+        <source src="/images/test.mp4" />
+        <p class="warning">Your browser does not support HTML5 video.</p>
+      </video>
+      <div class="abp" id="my-player">
+        <div class="video-container" id="my-comment-stage"></div>
+      </div>
+    </div>
+    <script src="/javascripts/socket.io.js"></script>
+    <script src="/javascripts/CommentCoreLibrary.js"></script>
+    <script>
+      (function (global, doc) {
+        global.addEventListener('load', function () {
+          const CM = new CommentManager(doc.getElementById('my-comment-stage'))
+          CM.init()
+          CM.start()
+          window.CM = CM
+          const socket = io()
+          socket.on('danmaku show', function (msg) {
+            const danmaku = JSON.parse(msg)
+            CM.send(danmaku)
+          })
+          const video = document.getElementById('video')
+          const player = document.getElementById('my-player')
+          player.addEventListener('click', function () {
+            if (video.paused) {
+              video.play()
+            } else {
+              video.pause()
+            }
+          })
+        })
+      })(window, document)
+    </script>
+  </body>
+</html>

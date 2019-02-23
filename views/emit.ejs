@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>danmaku</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1'>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/danmaku.css">
+    <link rel="stylesheet" href="/stylesheets/base.css">
+    <style>
+      #app {
+        padding-top: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+      .item .label {
+        width: 40px;
+        float: left;
+      }
+      .item .content {
+        margin-left: 40px;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .btn {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <form>
+        <div class="form-group">
+          <label>大小</label>
+          <select v-model="size" class="form-control">
+            <option v-for="item of sizes" :key="item.size" :value="item.size">{{ item.title }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>类型</label>
+          <select v-model="mode" class="form-control">
+            <option v-for="item of modes" :key="item.mode" :value="item.mode">{{ item.title }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>颜色</label>
+          <select v-model="color" class="form-control">
+            <option v-for="item of colors" :key="item.color" :value="item.color">{{ item.title }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <textarea v-model="val" class="form-control" rows="3" required placeholder="biu ~ 来一发弹幕"></textarea>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-lg btn-primary" @click.prevent="emit">🚀 发射 ✨</button>
+        </div>
+      </form>
+    </div>
+    <script src="/javascripts/socket.io.js"></script>
+    <script src="/javascripts/vue.min.js"></script>
+    <script src="/javascripts/CommentCoreLibrary.js"></script>
+    <script>
+      const app = new Vue({
+        el: '#app',
+        data: function () {
+          return {
+            val: '',
+            size: 64,
+            mode: 1,
+            color: 'ffffff',
+            sizes: [
+              {
+                'size': 64,
+                'title': '非常大'
+              },
+              {
+                'size': 45,
+                'title': '较大'
+              },
+              {
+                'size': 36,
+                'title': '大'
+              },
+              {
+                'size': 25,
+                'title': '中'
+              },
+              {
+                'size': 18,
+                'title': '小'
+              }
+            ],
+            modes: [
+              {
+                'mode': 1,
+                'title': '顶端滚动'
+              },
+              {
+                'mode': 2,
+                'title': '底端滚动'
+              },
+              {
+                'mode': 5,
+                'title': '顶端渐隐'
+              },
+              {
+                'mode': 4,
+                'title': '底端渐隐'
+              },
+              {
+                'mode': 6,
+                'title': '逆向滚动'
+              }
+            ],
+            colors: [
+              {
+                'color': 'ffffff',
+                'title': '白色'
+              },
+              {
+                'color': 'C0C0C0',
+                'title': '灰色'
+              },
+              {
+                'color': 'ff0000',
+                'title': '红色'
+              },
+              {
+                'color': '00ff00',
+                'title': '绿色'
+              },
+              {
+                'color': '0000ff',
+                'title': '蓝色'
+              },
+              {
+                'color': 'ffff00',
+                'title': '黄色'
+              },
+              {
+                'color': '00ffff',
+                'title': '墨绿'
+              },
+              {
+                'color': 'ff00ff',
+                'title': '洋红'
+              }
+            ],
+            inits: {
+              'size': 3,
+              'mode': 0,
+              'color': 4
+            }
+          }
+        },
+        created: function () {
+          this.socket = io()
+        },
+        methods: {
+          emit: function () {
+            if (this.val.replace(/(^s*)|(s*$)/g, '').length === 0) {
+              return
+            }
+            const danmaku = {
+              mode: this.mode,
+              text: this.val,
+              stime: 0,
+              size: this.size,
+              color: this.color,
+              dur: 10000
+            }
+            const msg = JSON.stringify(danmaku)
+            this.socket.emit('danmaku send', msg)
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
